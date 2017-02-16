@@ -73,7 +73,10 @@ class PostsPage(Handler):
 class ViewPostHandler(Handler):
     def render_post(self, id):
         art = Art.get_by_id(int(id))
-        self.render("post.html", art=art)
+        if art:
+            self.render("post.html", art=art)
+        else:
+            self.render("post.html", art=art, error="There is no blog with that ID.")
 
     def get(self, id):
         self.render_post(id)
