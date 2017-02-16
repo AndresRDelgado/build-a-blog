@@ -4,7 +4,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>/Andres Blog/</title>
+        <title>/ascii/</title>
     </head>
 
     <style type="text/css">
@@ -60,24 +60,14 @@
     </style>
 
     <body>
-        <h1>/ascii/</h1>
+        <h1>All The Best Posts</h1>
 
-        <form method="post">
-            <label>
-                <div>title</div>
-                <input type="text" name="title" value="{{title}}">
-            </label>
-
-            <label>
-                <div>art</div>
-                <textarea name="art">{{art}}</textarea>
-            </label>
-            
-            <div class="error">{{error}}</div>
-
-            <input type="submit">
-
-        </form>
+        {% for art in arts %}
+            <div class="art">
+                <a href="http://localhost:8080/blog/{{art.key().id()}}"><div class="art-title">{{art.title}}</div></a>
+                <pre class="art-body">{{art.art}}</pre>
+            </div>
+        {% endfor %}
     </body>
 </html>
 {% endblock %}

@@ -34,16 +34,16 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
 
+    def render_front(self, title="", art="", error=""):
+        arts = db.GqlQuery("SELECT * FROM Art ORDER BY created DESC")
+        self.render("front.html", title=title, art=art, error=error, arts = arts)
+
 class Art(db.Model):
     title = db.StringProperty(required = True)
     art = db.TextProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
 
 class MainPage(Handler):
-    def render_front(self, title="", art="", error=""):
-        arts = db.GqlQuery("SELECT * FROM Art ORDER BY created DESC")
-        self.render("front.html", title=title, art=art, error=error, arts = arts)
-
     def get(self):
         self.render_front()
 
@@ -54,14 +54,32 @@ class MainPage(Handler):
         if title and art:
             a = Art(title = title, art = art)
             a.put()
-            self.redirect("/")
+            self.redirect("/blog/"+str(a.key().id()))
 
         else:
-            error = "we need both a title and some artwork!"
+            error = "we need both a title and some content!"
             self.render_front(title, art, error)
         
         return
 
+class PostsPage(Handler):
+    def render_posts(self, title="", art="", error=""):
+        arts = db.GqlQuery("SELECT * FROM Art ORDER BY created DESC LIMIT 5 ")
+        self.render("posts.html", title=title, art=art, error=error, arts=arts)
+
+    def get(self):
+        self.render_posts()
+
+class ViewPostHandler(Handler):
+    def render_post(self, id):
+        art = Art.get_by_id(int(id))
+        self.render("post.html", art=art)
+
+    def get(self, id):
+        self.render_post(id)
+
 app = webapp2.WSGIApplication([
-    ('/', MainPage)
+    ('/newpost', MainPage),
+    ('/blog', PostsPage),
+    webapp2.Route('/blog/<id:\d+>', ViewPostHandler)
 ], debug=True)
